@@ -37,8 +37,7 @@ class Yukkuri_Talk_Server
 	protected $tmp_dir = '/tmp/';						// テンポラリファイルの置き場所
 	protected $tmp_prefix = 'yukkuri_talk_';			// テンポラリファイルの接頭語
 	protected $mecab_cmd = "echo %MSG% | /usr/bin/mecab | awk '/[^EOS]$/ {print $1\"\t\"$2}'";		// かな変換のためのmecabコマンド
-//	protected $exec_cmd = 'echo %MSG% | iconv -f %ENCODE% -t SJIS > %TMP_TXT% && wine AquesTalk.exe %TMP_TXT% %TMP_WAV% 80 2>&1';		// 実行されるコマンド
-	protected $exec_cmd = 'echo %MSG% | iconv -f %ENCODE% -t EUC-JP | ./SampleTalk > %TMP_WAV%';		// 実行されるコマンド
+	protected $exec_cmd = 'echo %MSG% | ./SampleTalkUTF8 > %TMP_WAV%';		// 実行されるコマンド
 	protected $breath_len = 110;						// 一度に発声できる最大文字数
 	protected $max_len = 1200;							// 発声できる文章の最大文字数
 	protected $msg_max_len = ' (長すぎるため省略されました)';		// 最大文字数に達した場合のメッセージ
@@ -130,10 +129,10 @@ class Yukkuri_Talk_Server
 			' ' => '　',
 			"\t" => '　',
 			"\n" => '　',
-			'?' => '{{{1}}}',
-			'？' => '{{{1}}}',
-			'\\' => '{{{2}}}',
-			'￥' => '{{{2}}}',
+			'?' => '{{{い}}}',
+			'？' => '{{{い}}}',
+			'\\' => '{{{ろ}}}',
+			'￥' => '{{{ろ}}}',
 		);
 		$str = strtr($str, $tr_arr);
 
@@ -143,8 +142,6 @@ class Yukkuri_Talk_Server
 		if (empty($output) or 0 !== $return_var) {
 			// エラーの場合
 			header("Content-Type:text/plain");
-var_dump(escapeshellarg($str));
-var_dump($str);
 			print($this->msg_ng . ' MeCab exec: ' . implode('\n', $output) . ' ($ ' . $cmd . ')' . "\n");
 			exit;
 		}
@@ -178,10 +175,10 @@ var_dump($str);
 		mb_regex_encoding($this->encoding);
 
 		$conv_arr = array(
-			"{{{1}}}" => "？、",
-			"{{{2}}}" => "えん",
+			"{{{い}}}" => "？、",
+			"{{{ろ}}}" => "えん",
 			"0" => "ぜろ",
-			"1" =>"いち",
+			"1" => "いち",
 			"2" => "にい",
 			"3" => "さん",
 			"4" => "よん",
