@@ -34,10 +34,11 @@ class Yukkuri_Talk_Server
 {
 	protected $msg_ng = '[error]';						// エラーの場合のメッセージ
 	protected $encoding = 'UTF-8';						// 内部で使用されるエンコーディング
+	protected $lang = 'ja_JP.UTF-8';					// 内部で使用されるLANG
 	protected $tmp_dir = '/tmp/';						// テンポラリファイルの置き場所
 	protected $tmp_prefix = 'yukkuri_talk_';			// テンポラリファイルの接頭語
 	protected $mecab_cmd = "echo %MSG% | /usr/bin/mecab | awk '/[^EOS]$/ {print $1\"\t\"$2}'";		// かな変換のためのmecabコマンド
-	protected $exec_cmd = 'echo %MSG% | ./SampleTalkUTF8 > %TMP_WAV%';		// 実行されるコマンド
+	protected $exec_cmd = 'export DISPLAY=:0 && echo %MSG% | iconv -f %ENCODE% -t SJIS > %TMP_TXT% && wine AquesTalk.exe %TMP_TXT% %TMP_WAV% 80 2>&1';		// 実行されるコマンド
 	protected $breath_len = 110;						// 一度に発声できる最大文字数
 	protected $max_len = 1200;							// 発声できる文章の最大文字数
 	protected $msg_max_len = ' (長すぎるため省略されました)';		// 最大文字数に達した場合のメッセージ
@@ -54,7 +55,7 @@ class Yukkuri_Talk_Server
 		}
 
 		// escapeshellarg()を使うのに必要
-		setlocale(LC_CTYPE, 'ja_JP.UTF-8');
+		setlocale(LC_CTYPE, $this->lang);
 	}
 
 	/**
